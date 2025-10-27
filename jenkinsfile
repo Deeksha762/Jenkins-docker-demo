@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Deeksha762/Jenkins-docker-demo.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t jenkins-html-demo .'
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    // Stop and remove any running container with same name
+                    sh 'docker rm -f jenkins-html-container || true'
+                    // Run new container
+                    sh 'docker run -d -p 8080:80 --name jenkins-html-container jenkins-html-demo'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Jenkins Pipeline executed successfully!"
+        }
+        failure {
+            echo "❌ Build failed. Please check logs."
+        }
+    }
+}
+
